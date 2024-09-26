@@ -1,0 +1,72 @@
+package com.ricka.princy.bonjouraurevoir.endpoint.rest.security;
+
+import com.ricka.princy.bonjouraurevoir.endpoint.rest.exception.ForbiddenException;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConf {
+    private final AuthenticationManager authenticationManager;
+    private final HandlerExceptionResolver exceptionResolver;
+
+    public SecurityConf(
+        @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
+        AuthenticationManager authenticationManager
+    ) {
+        this.exceptionResolver = exceptionResolver;
+        this.authenticationManager = authenticationManager;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        var anonymousPath =
+            new OrRequestMatcher(
+                new AntPathRequestMatcher("/**", OPTIONS.name()),
+                new AntPathRequestMatcher("/ping", GET.name()));
+        http
+            .exceptionHandling(
+                (exceptionHandler) ->
+                    exceptionHandler
+                        .authenticationEntryPoint(
+                            (req, res, e) -> exceptionResolver.resolveException(req, res, null, new ForbiddenException(e.getMessage())))
+                        .accessDeniedHandler(
+                            (req, res, e) -> exceptionResolver.resolveException(req, res, null, new ForbiddenException(e.getMessage()))))
+            .addFilterBefore(
+                apiKeyAuthFilter(new NegatedRequestMatcher(anonymousPath)), AnonymousAuthenticationFilter.class)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .csrf(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth-> auth
+                .requestMatchers(anonymousPath)
+                .permitAll()
+            );
+        return http.build();
+    }
+
+    private ApiKeyAuthFilter apiKeyAuthFilter(RequestMatcher requestMatcher) {
+        ApiKeyAuthFilter apiKeyFilter = new ApiKeyAuthFilter(requestMatcher);
+        apiKeyFilter.setAuthenticationManager(authenticationManager);
+        apiKeyFilter.setAuthenticationSuccessHandler(
+            (httpServletRequest, httpServletResponse, authentication) -> {});
+        apiKeyFilter.setAuthenticationFailureHandler(
+            (req, res, e) -> exceptionResolver.resolveException(req, res, null, new ForbiddenException(e.getMessage())));
+        return apiKeyFilter;
+    }
+}
