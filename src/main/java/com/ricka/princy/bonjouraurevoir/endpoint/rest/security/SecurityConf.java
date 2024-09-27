@@ -1,6 +1,7 @@
 package com.ricka.princy.bonjouraurevoir.endpoint.rest.security;
 
 import com.ricka.princy.bonjouraurevoir.endpoint.rest.exception.ForbiddenException;
+import com.ricka.princy.bonjouraurevoir.endpoint.rest.security.model.Authority;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +17,9 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
+import static com.ricka.princy.bonjouraurevoir.endpoint.rest.security.model.Authority.Role.ROLE_ADMIN;
+import static com.ricka.princy.bonjouraurevoir.endpoint.rest.security.model.Authority.Role.ROLE_COMMUNITY;
+import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
@@ -38,6 +40,9 @@ public class SecurityConf {
         var anonymousPath =
             new OrRequestMatcher(
                 new AntPathRequestMatcher("/**", OPTIONS.name()),
+                new AntPathRequestMatcher("/500", GET.name()),
+                new AntPathRequestMatcher("/400", GET.name()),
+                new AntPathRequestMatcher("/403", GET.name()),
                 new AntPathRequestMatcher("/ping", GET.name()));
         http
             .exceptionHandling(
@@ -56,6 +61,10 @@ public class SecurityConf {
             .authorizeHttpRequests(auth-> auth
                 .requestMatchers(anonymousPath)
                 .permitAll()
+                .requestMatchers(GET, "/community")
+                .hasAnyAuthority(ROLE_ADMIN.name(), ROLE_COMMUNITY.name())
+                .requestMatchers(POST, "/admin")
+                .hasAuthority(ROLE_ADMIN.name())
             );
         return http.build();
     }

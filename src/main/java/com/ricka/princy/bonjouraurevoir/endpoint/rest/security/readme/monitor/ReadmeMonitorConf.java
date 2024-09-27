@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties("readme.monitor.config")
+@ConfigurationProperties("readme.monitor")
 @NoArgsConstructor
 public class ReadmeMonitorConf {
     private String apiKey;

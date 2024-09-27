@@ -22,7 +22,7 @@ public class ApiKeyAuthFilter extends AbstractAuthenticationProcessingFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String apiKey = request.getHeader("x-api-key");
         AuthenticationManager manager = this.getAuthenticationManager();
-        return manager.authenticate(new UsernamePasswordAuthenticationToken("authorization", apiKey));
+        return manager.authenticate(new UsernamePasswordAuthenticationToken("x-api-key", apiKey));
     }
 
     @Override

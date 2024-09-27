@@ -1,9 +1,9 @@
 package com.ricka.princy.bonjouraurevoir.endpoint.rest.security.readme.monitor;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +14,12 @@ import static java.time.Instant.now;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ReadmeMonitorFilter implements Filter {
+public class ReadmeMonitorFilter extends HttpFilter {
     private final ReadmeMonitor readmeMonitor;
 
     @Override
     @SneakyThrows
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) {
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         var startedDatetime = now();
         Exception exception = null;
         try{
@@ -27,8 +27,8 @@ public class ReadmeMonitorFilter implements Filter {
         }catch(Exception error){
             exception = error;
         }
-        var requestDuration = Duration.between(startedDatetime, now()).toMillis();
-        readmeMonitor.saveLog(request, response, requestDuration);
+        var endedDatetime = now();
+        readmeMonitor.saveLog(request, response, startedDatetime, endedDatetime);
         if(exception != null){
             log.info("Exception founded {}", exception.toString());
             throw exception;

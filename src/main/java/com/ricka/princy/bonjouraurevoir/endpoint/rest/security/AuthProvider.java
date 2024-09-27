@@ -1,14 +1,13 @@
 package com.ricka.princy.bonjouraurevoir.endpoint.rest.security;
 
 import com.ricka.princy.bonjouraurevoir.endpoint.rest.security.authenticator.UsernamePasswordAuthenticator;
+import com.ricka.princy.bonjouraurevoir.endpoint.rest.security.model.Principal;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import java.security.Principal;
 
 @Component
 @AllArgsConstructor
@@ -24,7 +23,7 @@ public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
     @Override
     protected UserDetails retrieveUser(
         String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
-        return authenticator.retrieveUser(username, usernamePasswordAuthenticationToken);
+        return authenticator.retrieveUser(usernamePasswordAuthenticationToken);
     }
 
     public Principal getPrincipal() {
