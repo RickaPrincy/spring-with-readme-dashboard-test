@@ -1,7 +1,9 @@
 package com.ricka.princy.bonjouraurevoir.endpoint.rest.security;
 
 import com.ricka.princy.bonjouraurevoir.endpoint.rest.exception.ForbiddenException;
-import com.ricka.princy.bonjouraurevoir.endpoint.rest.security.model.Authority;
+import com.ricka.princy.bonjouraurevoir.endpoint.rest.security.readme.monitor.ReadmeMonitor;
+import com.ricka.princy.bonjouraurevoir.endpoint.rest.security.readme.monitor.ReadmeMonitorFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,13 +28,16 @@ import static org.springframework.http.HttpMethod.*;
 public class SecurityConf {
     private final AuthenticationManager authenticationManager;
     private final HandlerExceptionResolver exceptionResolver;
+    //TODO: find a better way
+    @Autowired private ReadmeMonitor readmeMonitor;
 
     public SecurityConf(
         @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
-        AuthenticationManager authenticationManager
+        AuthenticationManager authenticationManager, ReadmeMonitor readmeMonitor
     ) {
         this.exceptionResolver = exceptionResolver;
         this.authenticationManager = authenticationManager;
+        this.readmeMonitor = readmeMonitor;
     }
 
     @Bean
@@ -54,6 +59,8 @@ public class SecurityConf {
                             (req, res, e) -> exceptionResolver.resolveException(req, res, null, new ForbiddenException(e.getMessage()))))
             .addFilterBefore(
                 apiKeyAuthFilter(new NegatedRequestMatcher(anonymousPath)), AnonymousAuthenticationFilter.class)
+            .addFilterAfter(
+                readmeMonitorFilter(new NegatedRequestMatcher(anonymousPath)), AnonymousAuthenticationFilter.class)
             .formLogin(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
             .logout(AbstractHttpConfigurer::disable)
@@ -77,5 +84,9 @@ public class SecurityConf {
         apiKeyFilter.setAuthenticationFailureHandler(
             (req, res, e) -> exceptionResolver.resolveException(req, res, null, new ForbiddenException(e.getMessage())));
         return apiKeyFilter;
+    }
+
+    private ReadmeMonitorFilter readmeMonitorFilter(RequestMatcher requestMatcher) {
+        return new ReadmeMonitorFilter(readmeMonitor, requestMatcher);
     }
 }
