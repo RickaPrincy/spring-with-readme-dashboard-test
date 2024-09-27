@@ -1,0 +1,97 @@
+openapi: 3.0.3
+
+info:
+  title: bonjour-au-revoir
+  description: Readme test
+  version: 'latest'
+
+servers:
+  - url: 'https://localhost:8080'
+
+paths:
+  '/ping':
+    get:
+      tags:
+        - Health
+      responses:
+        200:
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+  '/403':
+    get:
+      tags:
+        - Error
+      responses:
+        200:
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+  '/500':
+    get:
+      tags:
+        - Error
+      responses:
+        200:
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+  '/400':
+    get:
+      tags:
+        - Error
+      responses:
+        200:
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+  '/community':
+    get:
+      tags:
+        - Success
+      responses:
+        200:
+          description: pong
+          content:
+            application/json:
+              schema:
+                type: string
+  '/admin':
+    get:
+      tags:
+        - Success
+      responses:
+        200:
+          description: pong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+components:
+  schemas:
+    Role:
+      type: string
+      enum:
+        - ROLE_ADMIN
+        - ROLE_COMMUNITY
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        apiKey:
+          type: string
+        role:
+          $ref: "#/components/schemas/Role"

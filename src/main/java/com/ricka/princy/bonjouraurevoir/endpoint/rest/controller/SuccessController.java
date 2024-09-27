@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 public class SuccessController {
     private final AuthProvider authProvider;
 
-    @GetMapping("community")
+    @GetMapping("/community")
     Principal community(){
         return authProvider.getPrincipal();
     }
 
-    @PostMapping("admin")
+    @PostMapping("/admin")
     User post(@RequestBody User user){
         return user;
     }
