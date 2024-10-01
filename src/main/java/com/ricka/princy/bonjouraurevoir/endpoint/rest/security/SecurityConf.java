@@ -48,6 +48,7 @@ public class SecurityConf {
                 new AntPathRequestMatcher("/500", GET.name()),
                 new AntPathRequestMatcher("/400", GET.name()),
                 new AntPathRequestMatcher("/403", GET.name()),
+                new AntPathRequestMatcher("/webhook", POST.name()),
                 new AntPathRequestMatcher("/ping", GET.name()));
         http
             .exceptionHandling(
