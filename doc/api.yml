@@ -8,6 +8,9 @@ info:
 servers:
   - url: 'https://9d57-102-17-180-246.ngrok-free.app'
 
+security:
+  - ApiKeyAuth: []
+
 paths:
   '/ping':
     get:
@@ -86,6 +89,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
   schemas:
     Role:
       type: string
