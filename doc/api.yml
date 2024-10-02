@@ -6,7 +6,7 @@ info:
   version: '0.0.1'
 
 servers:
-  - url: 'https://9d57-102-17-180-246.ngrok-free.app'
+  - url: 'https://1e9e-102-17-180-85.ngrok-free.app'
 
 security:
   - ApiKeyAuth: []
