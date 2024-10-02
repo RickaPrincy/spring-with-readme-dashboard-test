@@ -71,7 +71,6 @@ public class ReadmeWebhookValidator implements TriConsumer<CreateWebhook, HttpSe
             String unsigned = signatureValue.time() + "." + objectMapper.writeValueAsString(body);
             String encryptedObject = calculateHmacSHA256(unsigned, secret);
             if(!encryptedObject.equals(signatureValue.signature())){
-                log.error("encoded {} \n signature {}", encryptedObject, signatureValue.signature());
                 throw new WebhookVerificationException("Invalid Signature");
             }
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeyException e) {

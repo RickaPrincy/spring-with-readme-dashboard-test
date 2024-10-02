@@ -1,12 +1,12 @@
 openapi: 3.0.3
 
 info:
-  title: bonjour-au-revoir
+  title: ricka-api
   description: Readme test
-  version: 'latest'
+  version: '0.0.1'
 
 servers:
-  - url: 'https://localhost:8080'
+  - url: 'https://9d57-102-17-180-246.ngrok-free.app'
 
 paths:
   '/ping':
